@@ -1,0 +1,6 @@
+{
+  "name": "dotnet",
+  "version": "1.0.0",
+  "description": "dotnet shortcuts: dnb build, dnt test, dnr run, dnw watch.",
+  "requires": ["dotnet"]
+}

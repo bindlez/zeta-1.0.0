@@ -1,0 +1,41 @@
+{
+  "name": "synthwave",
+  "meta": {
+    "variant": "dark",
+    "blurb": "Neon sunset, 1986. Maximum aesthetic, zero subtlety.",
+    "author": "Zeta"
+  },
+  "palette": {
+    "bg": "#120b1f",
+    "surface": "#1e1033",
+    "surface2": "#2d1b4e",
+    "text": "#f0e6ff",
+    "muted": "#8b6fb8",
+    "accent": "#ff2e97",
+    "ok": "#00e5a0",
+    "warn": "#ffd166",
+    "err": "#ff3860",
+    "info": "#00d9ff",
+    "magenta": "#b967ff",
+    "cyan": "#00d9ff"
+  },
+  "glyphs": {},
+  "prompt": {
+    "left": [
+      { "segment": "context", "style": "plain", "fg": "muted" },
+      { "segment": "dir", "style": "pill", "bg": "accent", "fg": "bg", "bold": true },
+      { "segment": "git", "style": "pill", "bg": "magenta", "fg": "bg" },
+      { "segment": "langs", "style": "plain", "fg": "cyan" },
+      { "segment": "kube", "style": "plain", "fg": "info" },
+      { "segment": "status", "style": "pill", "bg": "err", "fg": "text" }
+    ],
+    "right": [
+      { "segment": "duration", "style": "plain", "fg": "muted" },
+      { "segment": "clock", "style": "plain", "fg": "magenta" }
+    ]
+  },
+  "terminal": {
+    "name": "Zeta Synthwave",
+    "opacity": 90
+  }
+}

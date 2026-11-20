@@ -1,0 +1,6 @@
+{
+  "name": "clip",
+  "version": "1.0.0",
+  "description": "copypath / copyfile / cwd helpers using the system clipboard.",
+  "requires": []
+}

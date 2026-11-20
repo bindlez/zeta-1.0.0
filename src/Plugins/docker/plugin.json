@@ -1,0 +1,6 @@
+{
+  "name": "docker",
+  "version": "1.0.0",
+  "description": "docker shortcuts: dps, dpa, di, dstop, drm, dlog, dsh.",
+  "requires": ["docker"]
+}

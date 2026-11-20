@@ -1,0 +1,17 @@
+[package]
+name = "zeta-core"
+version = "0.1.0"
+edition = "2021"
+description = "Zeta sensor sidecar: git state and frecency index. Zero dependencies by design."
+license = "MIT"
+
+[[bin]]
+name = "zeta-core"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

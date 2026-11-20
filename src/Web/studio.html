@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zeta Studio</title>
+<style>
+  :root {
+    --bg: #0b1020; --surface: #141a2e; --text: #e6edf7; --muted: #6b7a99;
+    --accent: #4cc2ff; --ok: #3ddc97; --warn: #ffcc66; --err: #ff5c7c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.45 "Segoe UI", system-ui, sans-serif;
+    display: grid; grid-template-columns: 380px 1fr; min-height: 100vh;
+  }
+  aside { padding: 22px; background: var(--surface); border-right: 1px solid #ffffff14; }
+  main { padding: 28px; display: flex; flex-direction: column; gap: 18px; }
+  h1 { font-size: 17px; margin: 0 0 2px; letter-spacing: .2px; }
+  .sub { color: var(--muted); font-size: 12px; margin-bottom: 16px; }
+  .row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .row label { flex: 1; color: var(--muted); font-size: 12.5px; text-transform: capitalize; }
+  input[type=color] {
+    width: 34px; height: 26px; padding: 0; border: 1px solid #ffffff22;
+    border-radius: 6px; background: none; cursor: pointer;
+  }
+  input[type=text], select {
+    width: 100%; padding: 8px 10px; border-radius: 7px; border: 1px solid #ffffff22;
+    background: #ffffff0a; color: var(--text); font: inherit;
+  }
+  .hex { width: 84px; text-align: center; font-family: Consolas, monospace; font-size: 12px; }
+  .actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  button {
+    padding: 9px 14px; border-radius: 8px; border: 1px solid #ffffff22;
+    background: #ffffff0d; color: var(--text); font: inherit; cursor: pointer;
+  }
+  button.primary { background: var(--accent); color: #0b1020; border-color: transparent; font-weight: 600; }
+  button.danger { color: var(--err); border-color: #ff5c7c55; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button:hover:not(:disabled) { filter: brightness(1.15); }
+  .card {
+    background: var(--surface); border: 1px solid #ffffff10; border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .prompt { font-family: Consolas, "Cascadia Mono", monospace; font-size: 15px; white-space: pre; overflow-x: auto; }
+  .chip { padding: 2px 9px; border-radius: 5px; }
+  .hint { color: var(--muted); font-size: 12px; }
+  .badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    border: 1px solid #ffffff22; color: var(--muted); white-space: nowrap;
+  }
+  .badge.user { color: var(--ok); border-color: #3ddc9755; }
+  .toast { color: var(--ok); font-size: 12.5px; min-height: 18px; margin-top: 10px; }
+  .swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 10px; }
+  .swatch { height: 22px; border-radius: 5px; border: 1px solid #ffffff18; }
+  .check { display: flex; align-items: center; gap: 8px; margin-top: 10px; color: var(--muted); font-size: 12.5px; }
+</style>
+</head>
+<body>
+<aside>
+  <h1>Zeta Studio</h1>
+  <div class="sub">Edit the palette — both shells follow.</div>
+
+  <label class="hint" for="theme">Start from</label>
+  <select id="theme" style="margin:6px 0 12px"></select>
+
+  <label class="hint" for="name">Theme name</label>
+  <div class="row" style="margin:6px 0 14px">
+    <input type="text" id="name" spellcheck="false">
+    <span class="badge" id="source">—</span>
+  </div>
+
+  <div id="colors"></div>
+
+  <div class="actions">
+    <button class="primary" id="save">Save</button>
+    <button id="revert">Revert</button>
+    <button class="danger" id="delete" disabled>Delete</button>
+  </div>
+  <label class="check"><input type="checkbox" id="autosave" checked> apply to both shells after save</label>
+  <div class="toast" id="toast"></div>
+</aside>
+
+<main>
+  <div class="card">
+    <div class="hint" style="margin-bottom:12px">Live preview</div>
+    <div class="prompt" id="preview"></div>
+  </div>
+  <div class="card">
+    <div class="hint">Palette</div>
+    <div class="swatches" id="swatches"></div>
+  </div>
+  <p class="hint">
+    Saving writes <code>%LOCALAPPDATA%\Zeta\themes\&lt;name&gt;.json</code> and recompiles the bash
+    theme. Built-in themes are never modified — editing one and saving under the same name creates
+    a user override you can delete again.
+  </p>
+</main>
+
+<script>
+const TOKEN = "__TOKEN__";
+const KEYS = ["bg","surface","surface2","text","muted","accent","ok","warn","err","info","magenta","cyan"];
+const api = (path, body) => fetch(path + (path.includes("?") ? "&" : "?") + "token=" + TOKEN, body ? {
+  method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+} : {}).then(async r => {
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) { throw new Error(data.error || ("HTTP " + r.status)); }
+  return data;
+});
+
+let palette = {};
+let loaded = "";
+let source = "missing";
+
+function toast(text, bad) {
+  const el = document.getElementById("toast");
+  el.textContent = text;
+  el.style.color = bad ? "var(--err)" : "var(--ok)";
+}
+
+function paint() {
+  const root = document.documentElement.style;
+  root.setProperty("--bg", palette.bg || "#0b1020");
+  root.setProperty("--surface", palette.surface || "#141a2e");
+  root.setProperty("--text", palette.text || "#e6edf7");
+  root.setProperty("--muted", palette.muted || "#6b7a99");
+  root.setProperty("--accent", palette.accent || "#4cc2ff");
+
+  const chip = `<span class="chip" style="background:${palette.accent};color:${palette.bg}"> ▸ ~/dev/zeta </span>`;
+  const git = `<span style="color:${palette.ok}">◆ main <span style="color:${palette.warn}">+2 ~1</span></span>`;
+  const clock = `<span style="color:${palette.muted}">16:44</span>`;
+  document.getElementById("preview").innerHTML =
+    `<span style="color:${palette.muted}">╭─</span> ${chip} ${git}` +
+    `\n<span style="color:${palette.muted}">╰─</span><span style="color:${palette.accent}">❯</span> ` +
+    `<span style="color:${palette.muted}">  ${clock}</span>`;
+
+  document.getElementById("swatches").innerHTML =
+    KEYS.map(k => `<div class="swatch" title="${k}" style="background:${palette[k] || "#000"}"></div>`).join("");
+}
+
+function buildInputs() {
+  document.getElementById("colors").innerHTML = KEYS.map(k => `
+    <div class="row">
+      <label for="c-${k}">${k}</label>
+      <input type="text" class="hex" id="h-${k}" value="${palette[k] || ""}" spellcheck="false">
+      <input type="color" id="c-${k}" value="${palette[k] || "#000000"}">
+    </div>`).join("");
+
+  KEYS.forEach(k => {
+    const picker = document.getElementById("c-" + k);
+    const hex = document.getElementById("h-" + k);
+    picker.addEventListener("input", e => { palette[k] = e.target.value; hex.value = e.target.value; paint(); });
+    hex.addEventListener("change", e => {
+      const v = e.target.value.trim().toLowerCase();
+      if (/^#[0-9a-f]{6}$/.test(v)) { palette[k] = v; picker.value = v; paint(); }
+      else { e.target.value = palette[k] || ""; }
+    });
+  });
+}
+
+async function loadTheme(themeName) {
+  const [data, info] = await Promise.all([
+    api("/api/theme?name=" + encodeURIComponent(themeName)),
+    api("/api/info?name=" + encodeURIComponent(themeName))
+  ]);
+  loaded = data.name;
+  palette = data.palette;
+  source = info.source;
+
+  document.getElementById("name").value = themeName;
+  const badge = document.getElementById("source");
+  badge.textContent = source === "user" ? "user theme" : (source === "missing" ? "new" : "built-in");
+  badge.className = "badge" + (source === "user" ? " user" : "");
+  document.getElementById("delete").disabled = source !== "user";
+  buildInputs();
+  paint();
+}
+
+async function refreshThemes(activeName) {
+  const state = await api("/api/state");
+  const select = document.getElementById("theme");
+  select.innerHTML = state.themes.map(t => `<option ${t === activeName ? "selected" : ""}>${t}</option>`).join("");
+}
+
+async function save() {
+  const name = (document.getElementById("name").value || "").trim().toLowerCase();
+  if (!/^[a-z0-9][a-z0-9-]{0,30}$/.test(name)) {
+    toast("name must be lowercase letters, digits or dashes", true);
+    return false;
+  }
+  const result = await api("/api/save", { name, palette });
+  loaded = name;
+  await refreshThemes(name);
+  if (document.getElementById("autosave").checked) {
+    await api("/api/activate", { name });
+    toast("saved and applied: " + name);
+  } else {
+    toast("saved: " + result.path);
+  }
+  await loadTheme(name);
+  return true;
+}
+
+document.getElementById("save").onclick = () => save().catch(e => toast(e.message, true));
+
+document.getElementById("revert").onclick = () => loadTheme(loaded).catch(e => toast(e.message, true));
+
+document.getElementById("delete").onclick = async () => {
+  if (!confirm(`Delete user theme "${loaded}"? The built-in version (if any) becomes active again.`)) { return; }
+  try {
+    await api("/api/delete", { name: loaded });
+    await refreshThemes("zeta");
+    await loadTheme("zeta");
+    toast("deleted: " + loaded);
+  } catch (e) { toast(e.message, true); }
+};
+
+async function boot() {
+  const wanted = new URLSearchParams(location.search).get("theme");
+  const state = await api("/api/state");
+  await refreshThemes(state.active);
+  const select = document.getElementById("theme");
+  select.addEventListener("change", e => loadTheme(e.target.value).catch(err => toast(err.message, true)));
+  await loadTheme(wanted || state.active);
+}
+
+boot().catch(e => toast("cannot reach the studio server: " + e.message, true));
+</script>
+</body>
+</html>

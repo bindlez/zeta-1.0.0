@@ -1,0 +1,6 @@
+{
+  "name": "git",
+  "version": "1.0.0",
+  "description": "git aliases and shortcuts (gs, gaa, gco, glog, gundo...).",
+  "requires": ["git"]
+}

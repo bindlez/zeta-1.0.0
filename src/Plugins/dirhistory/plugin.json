@@ -1,0 +1,6 @@
+{
+  "name": "dirhistory",
+  "version": "1.0.0",
+  "description": "Alt+Left / Alt+Right directory history, back / forward commands.",
+  "requires": []
+}

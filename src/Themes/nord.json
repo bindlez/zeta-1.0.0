@@ -1,0 +1,41 @@
+{
+  "name": "nord",
+  "meta": {
+    "variant": "dark",
+    "blurb": "An arctic, north-bluish palette. Calm, cold, low contrast.",
+    "author": "Zeta"
+  },
+  "palette": {
+    "bg": "#2e3440",
+    "surface": "#3b4252",
+    "surface2": "#434c5e",
+    "text": "#eceff4",
+    "muted": "#7b88a1",
+    "accent": "#88c0d0",
+    "ok": "#a3be8c",
+    "warn": "#ebcb8b",
+    "err": "#bf616a",
+    "info": "#81a1c1",
+    "magenta": "#b48ead",
+    "cyan": "#8fbcbb"
+  },
+  "glyphs": {},
+  "prompt": {
+    "left": [
+      { "segment": "context", "style": "plain", "fg": "muted" },
+      { "segment": "dir", "style": "pill", "bg": "accent", "fg": "bg", "bold": true },
+      { "segment": "git", "style": "block", "bg": "surface2", "fg": "ok" },
+      { "segment": "langs", "style": "plain", "fg": "info" },
+      { "segment": "kube", "style": "plain", "fg": "cyan" },
+      { "segment": "status", "style": "block", "bg": "err", "fg": "text" }
+    ],
+    "right": [
+      { "segment": "duration", "style": "plain", "fg": "muted" },
+      { "segment": "clock", "style": "plain", "fg": "muted" }
+    ]
+  },
+  "terminal": {
+    "name": "Zeta Nord",
+    "opacity": 94
+  }
+}

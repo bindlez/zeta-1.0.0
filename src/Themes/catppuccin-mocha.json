@@ -1,0 +1,42 @@
+{
+  "name": "catppuccin-mocha",
+  "meta": {
+    "variant": "dark",
+    "blurb": "Soothing pastel theme for the high-spirited.",
+    "author": "Zeta"
+  },
+  "palette": {
+    "bg": "#1e1e2e",
+    "surface": "#313244",
+    "surface2": "#45475a",
+    "text": "#cdd6f4",
+    "muted": "#7f849c",
+    "accent": "#89b4fa",
+    "ok": "#a6e3a1",
+    "warn": "#f9e2af",
+    "err": "#f38ba8",
+    "info": "#89dceb",
+    "magenta": "#cba6f7",
+    "cyan": "#94e2d5"
+  },
+  "glyphs": {},
+  "prompt": {
+    "left": [
+      { "segment": "context", "style": "plain", "fg": "muted" },
+      { "segment": "dir", "style": "pill", "bg": "surface2", "fg": "accent", "bold": true },
+      { "segment": "git", "style": "plain", "fg": "ok" },
+      { "segment": "langs", "style": "plain", "fg": "magenta" },
+      { "segment": "kube", "style": "plain", "fg": "info" },
+      { "segment": "venv", "style": "plain", "fg": "cyan" },
+      { "segment": "status", "style": "pill", "bg": "err", "fg": "bg" }
+    ],
+    "right": [
+      { "segment": "duration", "style": "plain", "fg": "muted" },
+      { "segment": "clock", "style": "plain", "fg": "muted" }
+    ]
+  },
+  "terminal": {
+    "name": "Zeta Catppuccin Mocha",
+    "opacity": 94
+  }
+}

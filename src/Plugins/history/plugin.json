@@ -1,0 +1,6 @@
+{
+  "name": "history",
+  "version": "1.0.0",
+  "description": "h <term> to search history, hs for your most-used commands.",
+  "requires": []
+}

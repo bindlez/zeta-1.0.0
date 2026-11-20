@@ -1,0 +1,43 @@
+{
+  "name": "zeta",
+  "meta": {
+    "variant": "dark",
+    "blurb": "Midnight indigo with electric cyan. The house theme.",
+    "author": "Zeta"
+  },
+  "palette": {
+    "bg": "#0b1020",
+    "surface": "#141a2e",
+    "surface2": "#1e2740",
+    "text": "#e6edf7",
+    "muted": "#6b7a99",
+    "accent": "#4cc2ff",
+    "ok": "#3ddc97",
+    "warn": "#ffcc66",
+    "err": "#ff5c7c",
+    "info": "#9d8cff",
+    "magenta": "#c792ea",
+    "cyan": "#4cc2ff"
+  },
+  "glyphs": {},
+  "prompt": {
+    "left": [
+      { "segment": "context", "style": "plain", "fg": "muted" },
+      { "segment": "dir", "style": "pill", "bg": "accent", "fg": "bg", "bold": true },
+      { "segment": "git", "style": "plain", "fg": "ok" },
+      { "segment": "langs", "style": "plain", "fg": "info" },
+      { "segment": "kube", "style": "plain", "fg": "info" },
+      { "segment": "aws", "style": "plain", "fg": "warn" },
+      { "segment": "venv", "style": "plain", "fg": "ok" },
+      { "segment": "status", "style": "pill", "bg": "err", "fg": "bg" }
+    ],
+    "right": [
+      { "segment": "duration", "style": "plain", "fg": "muted" },
+      { "segment": "clock", "style": "plain", "fg": "muted" }
+    ]
+  },
+  "terminal": {
+    "name": "Zeta Midnight",
+    "opacity": 92
+  }
+}
